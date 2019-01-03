@@ -2,6 +2,7 @@ package com.gpsolutions.vaadincourses.ui;
 
 import com.gpsolutions.vaadincourses.util.Email;
 import com.gpsolutions.vaadincourses.util.EmailGenerator;
+import com.gpsolutions.vaadincourses.util.StringListField;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
@@ -29,7 +30,7 @@ public class EmailUI extends UI {
     private List<Email> emails;
 
     @Autowired
-    public EmailUI(final EmailGenerator generator) {
+    public EmailUI(final EmailGenerator generator, final StringListField stringListField) {
         this.generator = generator;
         grid = new Grid();
         initGrid(grid);
