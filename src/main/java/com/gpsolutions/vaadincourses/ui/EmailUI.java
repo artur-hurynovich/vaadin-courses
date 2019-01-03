@@ -12,7 +12,9 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @SpringUI(path = "email")
 @Theme("valo")
@@ -23,6 +25,8 @@ public class EmailUI extends UI {
     private final Grid grid;
 
     private final Button removeButton;
+
+    private List<Email> emails;
 
     @Autowired
     public EmailUI(final EmailGenerator generator) {
@@ -36,23 +40,39 @@ public class EmailUI extends UI {
     @Override
     protected void init(final VaadinRequest vaadinRequest) {
         final VerticalLayout layout = new VerticalLayout();
-        updateList();
         layout.addComponents(grid, removeButton);
         setContent(layout);
     }
 
     private void initGrid(final Grid grid) {
+        emails = generator.getEmailList();
+        final BeanItemContainer<Email> container = new BeanItemContainer<>(Email.class, emails);
+        grid.setContainerDataSource(container);
         grid.setColumnOrder("name", "text", "recipients");
         grid.setSizeFull();
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addSelectionListener(selectionEvent -> {
+            final Set<Object> selectedEmails = selectionEvent.getSelected();
+            if (selectedEmails.size() == 0) {
+                removeButton.setEnabled(false);
+            } else {
+                removeButton.setEnabled(true);
+            }
+        });
     }
 
     private void initRemoveButton(final Button button) {
         button.setEnabled(false);
-    }
-
-    private void updateList() {
-        final List<Email> emails = generator.getEmailList();
-        final BeanItemContainer<Email> container = new BeanItemContainer<>(Email.class, emails);
-        grid.setContainerDataSource(container);
+        button.addClickListener(clickEvent -> {
+            final Collection<Object> selectedRows = grid.getSelectionModel().getSelectedRows();
+            if (selectedRows.size() > 0) {
+                selectedRows.forEach(row -> {
+                    final Email email = (Email) row;
+                    emails.remove(email);
+                    grid.getContainerDataSource().removeItem(row);
+                });
+            }
+            button.setEnabled(false);
+        });
     }
 }
