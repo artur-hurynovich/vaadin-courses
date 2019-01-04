@@ -1,6 +1,7 @@
 package com.gpsolutions.vaadincourses.util;
 
 import com.vaadin.data.util.converter.Converter;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
@@ -13,10 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StringListField extends CustomField<List<String>> {
-    private final VerticalLayout layout;
 
-    public StringListField() {
-        layout = new VerticalLayout();
+    private VerticalLayout layout;
+
+    public StringListField(String caption) {
+        setCaption(caption);
     }
 
     @Override
@@ -33,22 +35,43 @@ public class StringListField extends CustomField<List<String>> {
 
     @Override
     public List<String> getValue() {
-        return super.getValue();
+        final List<String> recipients = new ArrayList<>();
+        layout.iterator().forEachRemaining(component -> {
+            if (component instanceof HorizontalLayout) {
+                final TextField textField = (TextField) ((HorizontalLayout) component).getComponent(0);
+                recipients.add(textField.getValue());
+            }
+        });
+        return recipients;
     }
 
     @Override
     public void setValue(final List<String> recipients) throws ReadOnlyException, Converter.ConversionException {
-        layout.removeAllComponents();
+        if (layout == null) {
+            layout = new VerticalLayout();
+        } else {
+            layout.removeAllComponents();
+        }
+
         recipients.forEach(recipient -> {
             final HorizontalLayout horizontalLayout = new HorizontalLayout();
-            final TextField textField = new TextField(recipient);
-            textField.addTextChangeListener(textChangeEvent -> fireValueChange(true));
+            final TextField textField = new TextField();
+            textField.setValue(recipient);
             final Button removeButton = new Button("Remove");
-            removeButton.addClickListener(clickEvent -> fireValueChange(true));
+            textField.addTextChangeListener(textChangeEvent -> fireValueChange(false));
+            removeButton.addClickListener(clickEvent -> {
+                horizontalLayout.removeAllComponents();
+                /*recipients.remove(recipient);*/
+                fireValueChange(false);
+            });
             horizontalLayout.addComponents(textField, removeButton);
+            horizontalLayout.setComponentAlignment(textField, Alignment.BOTTOM_CENTER);
+            horizontalLayout.setComponentAlignment(removeButton, Alignment.BOTTOM_CENTER);
             layout.addComponent(horizontalLayout);
         });
+
         final Button addRecipientButton = new Button("Add Recipient");
         layout.addComponent(addRecipientButton);
     }
+
 }
