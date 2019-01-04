@@ -30,6 +30,8 @@ public class EmailForm extends Panel {
     private final LocalDateField dateField = new LocalDateField("Date");
 
     public EmailForm(final Email email, final Runnable onSaveOrDiscard) {
+        nameTextField.setNullRepresentation("");
+        messageTextArea.setNullRepresentation("");
         setHeight("200");
         setWidth("500");
         emailFieldGroup = new BeanFieldGroup<>(Email.class);

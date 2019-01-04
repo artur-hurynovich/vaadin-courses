@@ -109,13 +109,9 @@ public class EmailUI extends UI {
             emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> {
                 grid.refreshAllRows();
-                editButton.setEnabled(false);
-                removeButton.setEnabled(false);
             });
             addWindow(emailWindow);
         });
-
-        System.out.println(emails);
     }
 
     private void initRemoveButton() {
@@ -123,10 +119,9 @@ public class EmailUI extends UI {
         removeButton.addClickListener(clickEvent -> {
             final Collection<Object> selectedRows = grid.getSelectionModel().getSelectedRows();
             if (selectedRows.size() > 0) {
-                selectedRows.forEach(row -> {
-                    grid.getContainerDataSource().removeItem(row);
-                });
+                selectedRows.forEach(grid.getContainerDataSource()::removeItem);
             }
+            grid.deselectAll();
             editButton.setEnabled(false);
             removeButton.setEnabled(false);
         });

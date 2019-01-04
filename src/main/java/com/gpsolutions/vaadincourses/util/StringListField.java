@@ -61,7 +61,6 @@ public class StringListField extends CustomField<List<String>> {
             textField.addTextChangeListener(textChangeEvent -> fireValueChange(false));
             removeButton.addClickListener(clickEvent -> {
                 horizontalLayout.removeAllComponents();
-                /*recipients.remove(recipient);*/
                 fireValueChange(false);
             });
             horizontalLayout.addComponents(textField, removeButton);
