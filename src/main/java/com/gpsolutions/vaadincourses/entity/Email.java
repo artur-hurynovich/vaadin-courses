@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -20,5 +21,7 @@ public class Email {
     private String text;
 
     private List<String> recipients;
+
+    private LocalDate date;
 
 }

@@ -2,6 +2,7 @@ package com.gpsolutions.vaadincourses.entity;
 
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,10 +17,12 @@ public class EmailGenerator {
         recipients.add("Vladimir");
         return new ArrayList<Email>(){
             {
-
-                add(new Email("Artur", "What should I do next?", Collections.singletonList("Maxim")));
-                add(new Email("Maxim", "Keep on learning!", Collections.singletonList("Artur")));
-                add(new Email("Maxim", "All of you should keep on learning!", recipients));
+                add(new Email("Artur", "What should I do next?",
+                        Collections.singletonList("Maxim"), LocalDate.of(2019, 1, 2)));
+                add(new Email("Maxim", "Keep on learning!",
+                        Collections.singletonList("Artur"), LocalDate.of(2019, 1, 3)));
+                add(new Email("Maxim", "All of you should keep on learning!",
+                        recipients, LocalDate.of(2019, 1, 4)));
             }
         };
     }

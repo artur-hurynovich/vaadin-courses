@@ -1,6 +1,7 @@
 package com.gpsolutions.vaadincourses.form;
 
 import com.gpsolutions.vaadincourses.entity.Email;
+import com.gpsolutions.vaadincourses.util.LocalDateField;
 import com.gpsolutions.vaadincourses.util.StringListField;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -16,25 +17,28 @@ import com.vaadin.ui.VerticalLayout;
 public class EmailForm extends Panel {
 
     @PropertyId("name")
-    private final TextField nameTextField = new TextField("Name");
+    private final TextField nameField = new TextField("Name");
 
     @PropertyId("text")
-    private final TextArea messageTextArea = new TextArea("Message");
+    private final TextArea textField = new TextArea("Message");
 
     @PropertyId("recipients")
-    private final StringListField recipients = new StringListField("Recipients");
+    private final StringListField recipientsField = new StringListField("Recipients");
+
+    @PropertyId("date")
+    private final LocalDateField dateField = new LocalDateField("Date");
 
     private final BeanFieldGroup<Email> emailFieldGroup = new BeanFieldGroup<>(Email.class);
 
     public EmailForm(final Email email, final Runnable onSaveOrDiscard) {
-        nameTextField.setNullRepresentation("");
-        messageTextArea.setNullRepresentation("");
+        nameField.setNullRepresentation("");
+        textField.setNullRepresentation("");
         final VerticalLayout layout = new VerticalLayout();
         final HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponents(getSaveButton(onSaveOrDiscard), getCancelButton(onSaveOrDiscard));
         emailFieldGroup.setItemDataSource(email);
         emailFieldGroup.bindMemberFields(this);
-        layout.addComponents(nameTextField, messageTextArea, recipients, buttonsLayout);
+        layout.addComponents(nameField, textField, recipientsField, dateField, buttonsLayout);
         setContent(layout);
     }
 

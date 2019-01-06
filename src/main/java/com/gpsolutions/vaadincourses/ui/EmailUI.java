@@ -16,6 +16,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -62,7 +63,7 @@ public class EmailUI extends UI {
         emails = generator.getEmailList();
         final BeanItemContainer<Email> container = new BeanItemContainer<>(Email.class, emails);
         grid.setContainerDataSource(container);
-        grid.setColumnOrder("name", "text", "recipients");
+        grid.setColumnOrder("name", "text", "recipients", "date");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setSizeFull();
         grid.setHeightMode(HeightMode.ROW);
@@ -92,6 +93,7 @@ public class EmailUI extends UI {
         addButton.addClickListener(clickEvent -> {
             final Email email = new Email();
             email.setRecipients(new ArrayList<>());
+            email.setDate(LocalDate.now());
             grid.getContainerDataSource().addItem(email);
             grid.refreshAllRows();
             final Window emailWindow = new Window();
