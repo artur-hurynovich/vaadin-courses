@@ -1,19 +1,10 @@
 package com.gpsolutions.vaadincourses.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Email {
 
     private String name;
@@ -22,10 +13,37 @@ public class Email {
 
     private List<String> recipients;
 
-    private LocalDate date;
+    public Email() {
+    }
 
-    public boolean removeRecipient(final String recipient) {
-        return recipients.remove(recipient);
+    public Email(final String name, final String text, final List<String> recipients) {
+        this.name = name;
+        this.text = text;
+        this.recipients = recipients;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(final String text) {
+        this.text = text;
+    }
+
+    public List<String> getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(final List<String> recipients) {
+        this.recipients = recipients;
     }
 
 }

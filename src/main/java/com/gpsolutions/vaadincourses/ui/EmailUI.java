@@ -4,8 +4,10 @@ import com.gpsolutions.vaadincourses.form.EmailForm;
 import com.gpsolutions.vaadincourses.entity.Email;
 import com.gpsolutions.vaadincourses.entity.EmailGenerator;
 import com.vaadin.annotations.Theme;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Grid;
@@ -61,9 +63,10 @@ public class EmailUI extends UI {
         emails = generator.getEmailList();
         final BeanItemContainer<Email> container = new BeanItemContainer<>(Email.class, emails);
         grid.setContainerDataSource(container);
-        grid.setColumnOrder("name", "text", "recipients", "date");
+        grid.setColumnOrder("name", "text", "recipients");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setSizeFull();
+        grid.setHeightMode(HeightMode.ROW);
         grid.addSelectionListener(selectionEvent -> {
             final Set<Object> selectedEmails = selectionEvent.getSelected();
             if (selectedEmails.size() == 0) {
@@ -88,12 +91,14 @@ public class EmailUI extends UI {
 
     private void initAddButton() {
         addButton.addClickListener(clickEvent -> {
+            final Email email = new Email();
+            email.setRecipients(new ArrayList<>());
+            grid.getContainerDataSource().addItem(email);
+            grid.refreshAllRows();
             final Window emailWindow = new Window();
-            emailWindow.setCaption("Edit email");
-            final Email emptyEmail = new Email();
-            final List<String> emptyRecipientsList = new ArrayList<>();
-            emptyEmail.setRecipients(emptyRecipientsList);
-            emailWindow.setContent(new EmailForm(emptyEmail, emailWindow::close));
+            final EmailForm emailForm = new EmailForm(email, emailWindow::close);
+            emailWindow.setCaption("New email");
+            emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
             addWindow(emailWindow);
         });
@@ -107,9 +112,7 @@ public class EmailUI extends UI {
             final EmailForm emailForm = new EmailForm(email, emailWindow::close);
             emailWindow.setCaption("Edit email");
             emailWindow.setContent(emailForm);
-            emailWindow.addCloseListener(closeEvent -> {
-                grid.refreshAllRows();
-            });
+            emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
             addWindow(emailWindow);
         });
     }

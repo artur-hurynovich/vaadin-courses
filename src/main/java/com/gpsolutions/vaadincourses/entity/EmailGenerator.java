@@ -18,12 +18,9 @@ public class EmailGenerator {
         return new ArrayList<Email>(){
             {
 
-                add(new Email("Artur", "What should I do next?", Collections.singletonList("Maxim"),
-                        LocalDate.of(2019, 1, 2)));
-                add(new Email("Maxim", "Keep on learning!", Collections.singletonList("Artur"),
-                        LocalDate.of(2019, 1, 3)));
-                add(new Email("Maxim", "All of you should keep on learning!", recipients,
-                        LocalDate.of(2019, 1, 4)));
+                add(new Email("Artur", "What should I do next?", Collections.singletonList("Maxim")));
+                add(new Email("Maxim", "Keep on learning!", Collections.singletonList("Artur")));
+                add(new Email("Maxim", "All of you should keep on learning!", recipients));
             }
         };
     }
