@@ -1,14 +1,16 @@
-package com.gpsolutions.vaadincourses.ui;
+package com.gpsolutions.vaadincourses.view;
 
-import com.gpsolutions.vaadincourses.form.EmailForm;
+
 import com.gpsolutions.vaadincourses.entity.Email;
 import com.gpsolutions.vaadincourses.entity.EmailGenerator;
-import com.vaadin.annotations.Theme;
+import com.gpsolutions.vaadincourses.form.EmailForm;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.server.VaadinRequest;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.grid.HeightMode;
-import com.vaadin.spring.annotation.SpringUI;
+import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
@@ -22,9 +24,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-@SpringUI(path = "email")
-@Theme("valo")
-public class EmailUI extends UI {
+@SpringView(name = EmailView.NAME)
+public class EmailView extends CustomComponent implements View {
+
+    public final static String NAME = "email";
 
     private final EmailGenerator generator;
 
@@ -38,25 +41,28 @@ public class EmailUI extends UI {
 
     private final Button removeButton;
 
+    private final Button closeButton;
+
     private List<Email> emails;
 
     @Autowired
-    public EmailUI(final EmailGenerator generator) {
+    public EmailView(final EmailGenerator generator) {
         this.generator = generator;
         grid = new Grid();
         initGrid();
         addButton = new Button("Add");
         editButton = new Button("Edit");
         removeButton = new Button("Remove");
+        closeButton = new Button("Close");
         buttonsLayout = new HorizontalLayout();
         initButtonsLayout();
     }
 
     @Override
-    protected void init(final VaadinRequest vaadinRequest) {
+    public void enter(final ViewChangeListener.ViewChangeEvent viewChangeEvent) {
         final VerticalLayout layout = new VerticalLayout();
         layout.addComponents(grid, buttonsLayout);
-        setContent(layout);
+        setCompositionRoot(layout);
     }
 
     private void initGrid() {
@@ -86,7 +92,8 @@ public class EmailUI extends UI {
         initAddButton();
         initEditButton();
         initRemoveButton();
-        buttonsLayout.addComponents(addButton, editButton, removeButton);
+        initCloseButton();
+        buttonsLayout.addComponents(addButton, editButton, removeButton, closeButton);
     }
 
     private void initAddButton() {
@@ -101,7 +108,7 @@ public class EmailUI extends UI {
             emailWindow.setCaption("New email");
             emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
-            addWindow(emailWindow);
+            UI.getCurrent().addWindow(emailWindow);
         });
     }
 
@@ -114,7 +121,7 @@ public class EmailUI extends UI {
             emailWindow.setCaption("Edit email");
             emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
-            addWindow(emailWindow);
+            UI.getCurrent().addWindow(emailWindow);
         });
     }
 
@@ -130,4 +137,9 @@ public class EmailUI extends UI {
             removeButton.setEnabled(false);
         });
     }
+
+    private void initCloseButton() {
+        closeButton.addClickListener(clickEvent -> getUI().getNavigator().navigateTo(MainView.NAME));
+    }
+
 }
