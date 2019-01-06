@@ -4,7 +4,6 @@ import com.gpsolutions.vaadincourses.form.EmailForm;
 import com.gpsolutions.vaadincourses.entity.Email;
 import com.gpsolutions.vaadincourses.entity.EmailGenerator;
 import com.vaadin.annotations.Theme;
-import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.grid.HeightMode;

@@ -1,9 +1,17 @@
 package com.gpsolutions.vaadincourses.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Repository
 public class Email {
 
@@ -12,38 +20,5 @@ public class Email {
     private String text;
 
     private List<String> recipients;
-
-    public Email() {
-    }
-
-    public Email(final String name, final String text, final List<String> recipients) {
-        this.name = name;
-        this.text = text;
-        this.recipients = recipients;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(final String text) {
-        this.text = text;
-    }
-
-    public List<String> getRecipients() {
-        return recipients;
-    }
-
-    public void setRecipients(final List<String> recipients) {
-        this.recipients = recipients;
-    }
 
 }

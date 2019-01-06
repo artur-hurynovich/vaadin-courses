@@ -1,11 +1,9 @@
 package com.gpsolutions.vaadincourses.util;
 
 import com.vaadin.data.util.converter.Converter;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
