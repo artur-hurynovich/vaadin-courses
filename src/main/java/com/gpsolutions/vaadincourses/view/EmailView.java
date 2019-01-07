@@ -1,10 +1,11 @@
 package com.gpsolutions.vaadincourses.view;
 
 
-import com.gpsolutions.vaadincourses.entity.Email;
-import com.gpsolutions.vaadincourses.entity.EmailGenerator;
+import com.gpsolutions.vaadincourses.entity.EmailEntity;
 import com.gpsolutions.vaadincourses.form.EmailForm;
-import com.vaadin.data.util.BeanItemContainer;
+import com.gpsolutions.vaadincourses.repository.EmailRepository;
+import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.grid.HeightMode;
@@ -18,10 +19,11 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManagerFactory;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @SpringView(name = EmailView.NAME)
@@ -29,7 +31,9 @@ public class EmailView extends CustomComponent implements View {
 
     public final static String NAME = "email";
 
-    private final EmailGenerator generator;
+    private final EmailRepository emailRepository;
+
+    private final EntityManagerFactory entityManagerFactory;
 
     private final Grid grid;
 
@@ -43,11 +47,10 @@ public class EmailView extends CustomComponent implements View {
 
     private final Button closeButton;
 
-    private List<Email> emails;
-
     @Autowired
-    public EmailView(final EmailGenerator generator) {
-        this.generator = generator;
+    public EmailView(final EmailRepository emailRepository, final EntityManagerFactory entityManagerFactory) {
+        this.emailRepository = emailRepository;
+        this.entityManagerFactory = entityManagerFactory;
         grid = new Grid();
         initGrid();
         addButton = new Button("Add");
@@ -66,10 +69,10 @@ public class EmailView extends CustomComponent implements View {
     }
 
     private void initGrid() {
-        emails = generator.getEmailList();
-        final BeanItemContainer<Email> container = new BeanItemContainer<>(Email.class, emails);
+        final JPAContainer<EmailEntity> container = JPAContainerFactory.make(EmailEntity.class,
+                entityManagerFactory.createEntityManager());
         grid.setContainerDataSource(container);
-        grid.setColumnOrder("name", "text", "recipients", "date");
+        grid.setColumnOrder("name", "message", "recipients", "date");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setSizeFull();
         grid.setHeightMode(HeightMode.ROW);
@@ -98,14 +101,16 @@ public class EmailView extends CustomComponent implements View {
 
     private void initAddButton() {
         addButton.addClickListener(clickEvent -> {
-            final Email email = new Email();
-            email.setRecipients(new ArrayList<>());
-            email.setDate(LocalDate.now());
-            grid.getContainerDataSource().addItem(email);
+            final EmailEntity emailEntity = new EmailEntity();
+            emailEntity.setRecipients(new ArrayList<>());
+            emailEntity.setDate(LocalDate.now(ZoneId.systemDefault()));
             grid.refreshAllRows();
             final Window emailWindow = new Window();
-            final EmailForm emailForm = new EmailForm(email, emailWindow::close);
-            emailWindow.setCaption("New email");
+            final EmailForm emailForm = new EmailForm(emailEntity, emailRepository, () -> {
+                ((JPAContainer<EmailEntity>) grid.getContainerDataSource()).refresh();
+                emailWindow.close();
+            });
+            emailWindow.setCaption("New emailEntity");
             emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
             UI.getCurrent().addWindow(emailWindow);
@@ -115,10 +120,14 @@ public class EmailView extends CustomComponent implements View {
     private void initEditButton() {
         editButton.setEnabled(false);
         editButton.addClickListener(clickEvent -> {
-            final Email email = (Email) grid.getSelectedRows().iterator().next();
+            final long emailId = (long) grid.getSelectedRows().iterator().next();
+            final EmailEntity emailEntity = emailRepository.findById(emailId);
             final Window emailWindow = new Window();
-            final EmailForm emailForm = new EmailForm(email, emailWindow::close);
-            emailWindow.setCaption("Edit email");
+            final EmailForm emailForm = new EmailForm(emailEntity, emailRepository, () -> {
+                ((JPAContainer<EmailEntity>) grid.getContainerDataSource()).refresh();
+                emailWindow.close();
+            });
+            emailWindow.setCaption("Edit emailEntity");
             emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
             UI.getCurrent().addWindow(emailWindow);

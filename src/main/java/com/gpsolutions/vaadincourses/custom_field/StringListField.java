@@ -1,4 +1,4 @@
-package com.gpsolutions.vaadincourses.util;
+package com.gpsolutions.vaadincourses.custom_field;
 
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.ui.Button;

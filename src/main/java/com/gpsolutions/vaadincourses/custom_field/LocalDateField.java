@@ -1,6 +1,6 @@
-package com.gpsolutions.vaadincourses.util;
+package com.gpsolutions.vaadincourses.custom_field;
 
-import com.gpsolutions.vaadincourses.entity.DateCollections;
+import com.gpsolutions.vaadincourses.util.DateCollections;
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;

@@ -1,4 +1,4 @@
-package com.gpsolutions.vaadincourses.entity;
+package com.gpsolutions.vaadincourses.util;
 
 import java.util.ArrayList;
 import java.util.List;
