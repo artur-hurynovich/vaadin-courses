@@ -6,6 +6,7 @@ import com.gpsolutions.vaadincourses.form.EmailForm;
 import com.gpsolutions.vaadincourses.repository.EmailRepository;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
+import com.vaadin.data.util.filter.Like;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.grid.HeightMode;
@@ -14,6 +15,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -30,6 +32,8 @@ import java.util.Set;
 public class EmailView extends CustomComponent implements View {
 
     public final static String NAME = "email";
+
+    private final JPAContainer<EmailEntity> container;
 
     private final EmailRepository emailRepository;
 
@@ -51,6 +55,8 @@ public class EmailView extends CustomComponent implements View {
     public EmailView(final EmailRepository emailRepository, final EntityManagerFactory entityManagerFactory) {
         this.emailRepository = emailRepository;
         this.entityManagerFactory = entityManagerFactory;
+        container = JPAContainerFactory.make(EmailEntity.class,
+                entityManagerFactory.createEntityManager());
         grid = new Grid();
         initGrid();
         addButton = new Button("Add");
@@ -69,13 +75,21 @@ public class EmailView extends CustomComponent implements View {
     }
 
     private void initGrid() {
-        final JPAContainer<EmailEntity> container = JPAContainerFactory.make(EmailEntity.class,
-                entityManagerFactory.createEntityManager());
         grid.setContainerDataSource(container);
         grid.setColumnOrder("name", "message", "recipients", "date");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setSizeFull();
         grid.setHeightMode(HeightMode.ROW);
+
+        final Grid.HeaderRow filterRow = getHeaderRow();
+        final Grid.HeaderCell filterCell = filterRow.getCell("message");
+        final TextField filterTextField = new TextField();
+        filterTextField.addTextChangeListener(textChangeEvent -> {
+            container.removeAllContainerFilters();
+            container.addContainerFilter(new Like("message", "%" + textChangeEvent.getText() + "%"));
+        });
+        filterCell.setComponent(filterTextField);
+
         grid.addSelectionListener(selectionEvent -> {
             final Set<Object> selectedEmails = selectionEvent.getSelected();
             if (selectedEmails.size() == 0) {
@@ -89,6 +103,10 @@ public class EmailView extends CustomComponent implements View {
                 removeButton.setEnabled(true);
             }
         });
+    }
+
+    private Grid.HeaderRow getHeaderRow() {
+        return grid.addHeaderRowAt(0);
     }
 
     private void initButtonsLayout() {
@@ -107,7 +125,7 @@ public class EmailView extends CustomComponent implements View {
             grid.refreshAllRows();
             final Window emailWindow = new Window();
             final EmailForm emailForm = new EmailForm(emailEntity, emailRepository, () -> {
-                ((JPAContainer<EmailEntity>) grid.getContainerDataSource()).refresh();
+                container.refresh();
                 emailWindow.close();
             });
             emailWindow.setCaption("New emailEntity");
@@ -124,7 +142,7 @@ public class EmailView extends CustomComponent implements View {
             final EmailEntity emailEntity = emailRepository.findById(emailId);
             final Window emailWindow = new Window();
             final EmailForm emailForm = new EmailForm(emailEntity, emailRepository, () -> {
-                ((JPAContainer<EmailEntity>) grid.getContainerDataSource()).refresh();
+                container.refresh();
                 emailWindow.close();
             });
             emailWindow.setCaption("Edit emailEntity");
