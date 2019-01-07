@@ -71,13 +71,7 @@ public class StringListField extends CustomField<List<String>> {
                     setValue(recipients);
                 });
                 final Button removeButton = new Button("Remove");
-                removeButton.addClickListener(clickEvent -> {
-                    final List<String> recipients = new ArrayList<>(getValue());
-                    recipients.remove(recipient);
-                    setValue(recipients);
-                    getChildLayouts().remove(childLayout);
-                    parentLayout.removeComponent(childLayout);
-                });
+                removeButton.addClickListener(getRemoveButtonClickListener(recipient, childLayout));
                 childLayout.addComponents(textField, removeButton);
                 childLayouts.add(childLayout);
             });
@@ -88,28 +82,49 @@ public class StringListField extends CustomField<List<String>> {
     private Button getAddButton() {
         if (addButton == null) {
             addButton = new Button("Add Recipient");
-            addButton.addClickListener(clickEvent -> {
-                final List<String> recipients = new ArrayList<>(getValue());
-                final HorizontalLayout childLayout = new HorizontalLayout();
-                final TextField textField = new TextField();
-                textField.addValueChangeListener(valueChangeEvent -> {
-                    final String newTextFieldValue = textField.getValue();
-                    final int index = getChildLayouts().indexOf(childLayout);
-                    final List<String> updatedRecipients = new ArrayList<>(getValue());
-                    updatedRecipients.set(index, newTextFieldValue);
-                    setValue(updatedRecipients);
-                });
-                final Button removeButton = new Button("Remove");
-                childLayout.addComponents(textField, removeButton);
-                childLayouts.add(childLayout);
-                recipients.add("");
-                setValue(recipients);
-                parentLayout.removeComponent(addButton);
-                parentLayout.addComponent(childLayout);
-                parentLayout.addComponent(addButton);
-            });
+            addButton.addClickListener(getAddButtonClickListener());
         }
         return addButton;
+    }
+
+    private ValueChangeListener getTextFieldValueChangeListener(final TextField textField,
+                                                                final HorizontalLayout childLayout) {
+        return valueChangeEvent -> {
+            final String newTextFieldValue = textField.getValue();
+            final int index = getChildLayouts().indexOf(childLayout);
+            final List<String> updatedRecipients = new ArrayList<>(getValue());
+            updatedRecipients.set(index, newTextFieldValue);
+            setValue(updatedRecipients);
+        };
+    }
+
+    private Button.ClickListener getAddButtonClickListener() {
+        return clickEvent -> {
+            final List<String> recipients = new ArrayList<>(getValue());
+            final HorizontalLayout childLayout = new HorizontalLayout();
+            final TextField textField = new TextField();
+            textField.addValueChangeListener(getTextFieldValueChangeListener(textField, childLayout));
+            final Button removeButton = new Button("Remove");
+            removeButton.addClickListener(getRemoveButtonClickListener(textField.getValue(), childLayout));
+            childLayout.addComponents(textField, removeButton);
+            childLayouts.add(childLayout);
+            recipients.add("");
+            setValue(recipients);
+            parentLayout.removeComponent(addButton);
+            parentLayout.addComponent(childLayout);
+            parentLayout.addComponent(addButton);
+        };
+    }
+
+    private Button.ClickListener getRemoveButtonClickListener(final String recipient,
+                                                              final HorizontalLayout childLayout) {
+        return clickEvent -> {
+            final List<String> recipients = new ArrayList<>(getValue());
+            recipients.remove(recipient);
+            setValue(recipients);
+            getChildLayouts().remove(childLayout);
+            parentLayout.removeComponent(childLayout);
+        };
     }
 
 }

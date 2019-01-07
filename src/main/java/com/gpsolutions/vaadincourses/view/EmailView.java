@@ -77,6 +77,7 @@ public class EmailView extends CustomComponent implements View {
     private void initGrid() {
         grid.setContainerDataSource(container);
         grid.setColumnOrder("name", "message", "recipients", "date");
+        grid.removeColumn("id");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setSizeFull();
         grid.setHeightMode(HeightMode.ROW);
