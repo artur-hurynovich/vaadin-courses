@@ -16,6 +16,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,9 +35,13 @@ public class EmailEntity {
     private long id;
 
     @Column
+    @NotNull
+    @Size(min = 1, max = 10)
     private String name;
 
     @Column
+    @NotNull
+    @Size(min = 1, max = 30)
     private String message;
 
     @Column

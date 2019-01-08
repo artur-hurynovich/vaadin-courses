@@ -4,6 +4,7 @@ import com.gpsolutions.vaadincourses.entity.EmailEntity;
 import com.gpsolutions.vaadincourses.custom_field.LocalDateField;
 import com.gpsolutions.vaadincourses.custom_field.StringListField;
 import com.gpsolutions.vaadincourses.repository.EmailRepository;
+import com.vaadin.data.Validator;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.PropertyId;
@@ -15,6 +16,9 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import org.springframework.beans.BeanUtils;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class EmailForm extends Panel {
 
@@ -34,6 +38,7 @@ public class EmailForm extends Panel {
 
     private final BeanFieldGroup<EmailEntity> emailFieldGroup = new BeanFieldGroup<>(EmailEntity.class);
 
+    @SuppressWarnings("unchecked")
     public EmailForm(final EmailEntity emailEntity, final EmailRepository emailRepository,
                      final Runnable onSave, final Runnable onDiscard) {
         this.emailRepository = emailRepository;
@@ -44,6 +49,25 @@ public class EmailForm extends Panel {
         buttonsLayout.addComponents(getSaveButton(emailEntity, onSave), getCancelButton(onDiscard));
         emailFieldGroup.setItemDataSource(emailEntity);
         emailFieldGroup.bindMemberFields(this);
+        dateField.addValidator(value -> {
+            if (value == null) {
+                throw new Validator.InvalidValueException("The date is empty");
+            }
+            if (((LocalDate) value).isBefore(LocalDate.now())) {
+                throw new Validator.InvalidValueException("The date is before today");
+            }
+        });
+        recipientsField.addValidator(value -> {
+            final List<String> recipients = (List<String>) value;
+            if (recipients.size() > 2) {
+                throw new Validator.InvalidValueException("There should be a maximum of 2 recipients");
+            }
+            for (String recipient : (recipients)) {
+                if (recipient.isEmpty()) {
+                    throw new Validator.InvalidValueException("There should be no recipients without a name");
+                }
+            }
+        });
         layout.addComponents(nameField, textField, recipientsField, dateField, buttonsLayout);
         setContent(layout);
     }
@@ -58,7 +82,7 @@ public class EmailForm extends Panel {
                 emailRepository.save(oldEmailEntity);
                 onSave.run();
             } catch (FieldGroup.CommitException e) {
-                Notification.show("Error!", "Saving failed!", Notification.Type.ERROR_MESSAGE);
+                Notification.show("Warning!", "Form is not valid!", Notification.Type.WARNING_MESSAGE);
             }
         });
 
