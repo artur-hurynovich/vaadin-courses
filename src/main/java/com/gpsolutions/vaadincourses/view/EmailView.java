@@ -16,6 +16,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -144,10 +145,7 @@ public class EmailView extends CustomComponent implements View, Consumer<EmailEn
             emailEntity.setDate(LocalDate.now(ZoneId.systemDefault()));
             grid.refreshAllRows();
             final Window emailWindow = new Window();
-            final EmailForm emailForm = new EmailForm(emailEntity, emailRepository, () -> {
-                container.refresh();
-                emailWindow.close();
-            });
+            final EmailForm emailForm = getEmailForm(emailEntity, emailWindow);
             emailWindow.setCaption("New emailEntity");
             emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
@@ -161,10 +159,7 @@ public class EmailView extends CustomComponent implements View, Consumer<EmailEn
             final long emailId = (long) grid.getSelectedRows().iterator().next();
             final EmailEntity emailEntity = emailRepository.findById(emailId);
             final Window emailWindow = new Window();
-            final EmailForm emailForm = new EmailForm(emailEntity, emailRepository, () -> {
-                container.refresh();
-                emailWindow.close();
-            });
+            final EmailForm emailForm = getEmailForm(emailEntity, emailWindow);
             emailWindow.setCaption("Edit emailEntity");
             emailWindow.setContent(emailForm);
             emailWindow.addCloseListener(closeEvent -> grid.refreshAllRows());
@@ -186,6 +181,17 @@ public class EmailView extends CustomComponent implements View, Consumer<EmailEn
 
     private void initCloseButton() {
         closeButton.addClickListener(clickEvent -> getUI().getNavigator().navigateTo(MainView.NAME));
+    }
+
+    private EmailForm getEmailForm(final EmailEntity emailEntity, final Window emailWindow) {
+        return new EmailForm(emailEntity, emailRepository, () -> {
+            messageBroadcast.broadcast(emailEntity);
+            container.refresh();
+            emailWindow.close();
+        }, () -> {
+            container.refresh();
+            emailWindow.close();
+        });
     }
 
 }

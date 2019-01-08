@@ -14,6 +14,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import org.springframework.beans.BeanUtils;
 
 public class EmailForm extends Panel {
 
@@ -34,27 +35,28 @@ public class EmailForm extends Panel {
     private final BeanFieldGroup<EmailEntity> emailFieldGroup = new BeanFieldGroup<>(EmailEntity.class);
 
     public EmailForm(final EmailEntity emailEntity, final EmailRepository emailRepository,
-                     final Runnable onSaveOrDiscard) {
+                     final Runnable onSave, final Runnable onDiscard) {
         this.emailRepository = emailRepository;
         nameField.setNullRepresentation("");
         textField.setNullRepresentation("");
         final VerticalLayout layout = new VerticalLayout();
         final HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponents(getSaveButton(onSaveOrDiscard), getCancelButton(onSaveOrDiscard));
+        buttonsLayout.addComponents(getSaveButton(emailEntity, onSave), getCancelButton(onDiscard));
         emailFieldGroup.setItemDataSource(emailEntity);
         emailFieldGroup.bindMemberFields(this);
         layout.addComponents(nameField, textField, recipientsField, dateField, buttonsLayout);
         setContent(layout);
     }
 
-    private Button getSaveButton(final Runnable onSaveOrDiscard) {
+    private Button getSaveButton(final EmailEntity oldEmailEntity, final Runnable onSave) {
         final Button saveButton = new Button("Save");
         saveButton.addClickListener(clickEvent -> {
             try {
                 emailFieldGroup.commit();
                 final EmailEntity newEmail = emailFieldGroup.getItemDataSource().getBean();
-                emailRepository.save(newEmail);
-                onSaveOrDiscard.run();
+                BeanUtils.copyProperties(newEmail, oldEmailEntity);
+                emailRepository.save(oldEmailEntity);
+                onSave.run();
             } catch (FieldGroup.CommitException e) {
                 Notification.show("Error!", "Saving failed!", Notification.Type.ERROR_MESSAGE);
             }
@@ -63,11 +65,11 @@ public class EmailForm extends Panel {
         return saveButton;
     }
 
-    private Button getCancelButton(final Runnable onSaveOrDiscard) {
+    private Button getCancelButton(final Runnable onDiscard) {
         final Button cancelButton = new Button("Cancel");
         cancelButton.addClickListener(clickEvent -> {
             emailFieldGroup.discard();
-            onSaveOrDiscard.run();
+            onDiscard.run();
         });
         return cancelButton;
     }
