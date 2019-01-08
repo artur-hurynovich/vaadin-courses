@@ -1,27 +1,20 @@
 package com.gpsolutions.vaadincourses.custom_field;
 
-import com.gpsolutions.vaadincourses.util.DateCollections;
 import com.vaadin.data.util.converter.Converter;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.VerticalLayout;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class LocalDateField extends CustomField<LocalDate> {
 
     private VerticalLayout parentLayout;
 
-    private ComboBox dayField;
-
-    private ComboBox monthField;
-
-    private TextField yearField;
-
-    private final DateCollections dateCollections = new DateCollections();
+    private DateField dateField;
 
     public LocalDateField(String caption) {
         setCaption(caption);
@@ -50,51 +43,24 @@ public class LocalDateField extends CustomField<LocalDate> {
     private VerticalLayout getParentLayout() {
         if (parentLayout == null) {
             parentLayout = new VerticalLayout();
-            parentLayout.addComponents(getDayField(), getMonthField(), getYearField());
+            parentLayout.addComponents(getDateField());
         }
         return parentLayout;
     }
 
-    private Field getDayField() {
-        if (dayField == null) {
-            dayField = new ComboBox("Day", dateCollections.getDaysCollection());
-            dayField.setNullSelectionAllowed(false);
-            dayField.setValue(getValue().getDayOfMonth());
-            dayField.addValueChangeListener(valueChangeEvent -> {
-                final LocalDate date = getValue();
-                final LocalDate newDate = date.withDayOfMonth((Integer) dayField.getValue());
-                setValue(newDate);
-            });
-        }
-        return dayField;
+    private DateField getDateField() {
+        dateField = new DateField();
+        dateField.setValue(convertToDate(getValue()));
+        dateField.addValueChangeListener(valueChangeEvent -> setValue(convertToLocalDate(dateField.getValue())));
+        return dateField;
     }
 
-    private Field getMonthField() {
-        if (monthField == null) {
-            monthField = new ComboBox("Month", dateCollections.getMonthsCollection());
-            monthField.setNullSelectionAllowed(false);
-            monthField.setValue(getValue().getMonthValue());
-            monthField.addValueChangeListener(valueChangeEvent -> {
-                final LocalDate date = getValue();
-                final LocalDate newDate = date.withMonth((Integer) monthField.getValue());
-                setValue(newDate);
-            });
-        }
-        return monthField;
+    private Date convertToDate(final LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
-    private Field getYearField() {
-        if (yearField == null) {
-            yearField = new TextField("Year");
-            yearField.setNullSettingAllowed(false);
-            yearField.setValue(String.valueOf(getValue().getYear()));
-            yearField.addValueChangeListener(valueChangeEvent -> {
-                final LocalDate date = getValue();
-                final LocalDate newDate = date.withYear(Integer.valueOf(yearField.getValue()));
-                setValue(newDate);
-            });
-        }
-        return yearField;
+    private LocalDate convertToLocalDate(Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
 }
