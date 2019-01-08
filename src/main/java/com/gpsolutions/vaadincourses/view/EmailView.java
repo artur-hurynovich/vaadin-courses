@@ -1,6 +1,7 @@
 package com.gpsolutions.vaadincourses.view;
 
 
+import com.gpsolutions.vaadincourses.broadcast.impl.MessageBroadcast;
 import com.gpsolutions.vaadincourses.entity.EmailEntity;
 import com.gpsolutions.vaadincourses.form.EmailForm;
 import com.gpsolutions.vaadincourses.repository.EmailRepository;
@@ -27,9 +28,10 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @SpringView(name = EmailView.NAME)
-public class EmailView extends CustomComponent implements View {
+public class EmailView extends CustomComponent implements View, Consumer<EmailEntity> {
 
     public final static String NAME = "email";
 
@@ -38,6 +40,8 @@ public class EmailView extends CustomComponent implements View {
     private final EmailRepository emailRepository;
 
     private final EntityManagerFactory entityManagerFactory;
+
+    private final MessageBroadcast messageBroadcast;
 
     private final Grid grid;
 
@@ -52,9 +56,11 @@ public class EmailView extends CustomComponent implements View {
     private final Button closeButton;
 
     @Autowired
-    public EmailView(final EmailRepository emailRepository, final EntityManagerFactory entityManagerFactory) {
+    public EmailView(final EmailRepository emailRepository, final EntityManagerFactory entityManagerFactory,
+                     final MessageBroadcast messageBroadcast) {
         this.emailRepository = emailRepository;
         this.entityManagerFactory = entityManagerFactory;
+        this.messageBroadcast = messageBroadcast;
         container = JPAContainerFactory.make(EmailEntity.class,
                 entityManagerFactory.createEntityManager());
         grid = new Grid();
@@ -72,6 +78,21 @@ public class EmailView extends CustomComponent implements View {
         final VerticalLayout layout = new VerticalLayout();
         layout.addComponents(grid, buttonsLayout);
         setCompositionRoot(layout);
+        messageBroadcast.register(this);
+    }
+
+    @Override
+    public void detach() {
+        messageBroadcast.unregister(this);
+        super.detach();
+    }
+
+    @Override
+    public void accept(final EmailEntity emailEntity) {
+        getUI().access(() ->  {
+            container.refresh();
+            grid.refreshAllRows();
+        });
     }
 
     private void initGrid() {
@@ -80,8 +101,6 @@ public class EmailView extends CustomComponent implements View {
         grid.removeColumn("id");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setSizeFull();
-        grid.setHeightMode(HeightMode.ROW);
-
         final Grid.HeaderRow filterRow = getHeaderRow();
         final Grid.HeaderCell filterCell = filterRow.getCell("message");
         final TextField filterTextField = new TextField();
@@ -158,9 +177,8 @@ public class EmailView extends CustomComponent implements View {
         removeButton.addClickListener(clickEvent -> {
             final Collection<Object> selectedRows = grid.getSelectionModel().getSelectedRows();
             if (selectedRows.size() > 0) {
-                selectedRows.forEach(grid.getContainerDataSource()::removeItem);
+                selectedRows.forEach(container::removeItem);
             }
-            grid.deselectAll();
             editButton.setEnabled(false);
             removeButton.setEnabled(false);
         });

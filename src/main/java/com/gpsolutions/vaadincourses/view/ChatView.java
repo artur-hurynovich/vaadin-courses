@@ -2,6 +2,7 @@ package com.gpsolutions.vaadincourses.view;
 
 import com.gpsolutions.vaadincourses.broadcast.impl.MessageBroadcast;
 import com.gpsolutions.vaadincourses.entity.EmailEntity;
+import com.gpsolutions.vaadincourses.repository.EmailRepository;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -32,10 +33,12 @@ public class ChatView extends CustomComponent implements View, Consumer<EmailEnt
 
     private final MessageBroadcast messageBroadcast;
 
+    private final EmailRepository emailRepository;
+
     private String userName;
 
     @Autowired
-    public ChatView(final MessageBroadcast messageBroadcast) {
+    public ChatView(final MessageBroadcast messageBroadcast, final EmailRepository emailRepository) {
         parentLayout = new VerticalLayout();
         messageLayout = new VerticalLayout();
         registerLayout = new HorizontalLayout();
@@ -43,6 +46,7 @@ public class ChatView extends CustomComponent implements View, Consumer<EmailEnt
         initMessageLayout();
         initRegisterLayout();
         this.messageBroadcast = messageBroadcast;
+        this.emailRepository = emailRepository;
     }
 
     @Override
@@ -88,8 +92,9 @@ public class ChatView extends CustomComponent implements View, Consumer<EmailEnt
             final EmailEntity emailEntity = new EmailEntity();
             emailEntity.setName(userName);
             emailEntity.setMessage(textField.getValue());
-            messageBroadcast.broadcast(emailEntity);
             emailEntity.setDate(LocalDate.now(ZoneId.systemDefault()));
+            messageBroadcast.broadcast(emailEntity);
+            emailRepository.save(emailEntity);
             textField.clear();
             sendButton.setEnabled(false);
         });
