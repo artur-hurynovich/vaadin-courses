@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="artur_hurynovich" id="2.1">
+        <createTable tableName="recipients">
+            <column name="email_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipients" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="artur_hurynovich" id="2.2">
+        <addForeignKeyConstraint baseTableName="recipients" baseColumnNames="email_id"
+                                 constraintName="RECIPIENTS_EMAILS_FK" referencedTableName="emails"
+                                 referencedColumnNames="id" />
+    </changeSet>
+
+</databaseChangeLog>
