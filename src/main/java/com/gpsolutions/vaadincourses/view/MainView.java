@@ -20,6 +20,9 @@ public class MainView extends CustomComponent implements View {
         menuBar.addItem("Chat",
                 (MenuBar.Command) selectedItem ->
                         getUI().getNavigator().navigateTo(ChatView.NAME));
+        menuBar.addItem("Restricted View",
+                (MenuBar.Command) selectedItem ->
+                        getUI().getNavigator().navigateTo(NotAvailableView.NAME));
         menuBar.addItem("Error",
                 (MenuBar.Command) selectedItem ->
                         getUI().getNavigator().navigateTo(EmailView.NAME + "error"));
