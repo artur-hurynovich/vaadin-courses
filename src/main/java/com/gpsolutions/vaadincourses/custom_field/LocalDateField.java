@@ -56,11 +56,19 @@ public class LocalDateField extends CustomField<LocalDate> {
     }
 
     private Date convertToDate(final LocalDate localDate) {
-        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        if (localDate != null) {
+            return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } else {
+            return null;
+        }
     }
 
     private LocalDate convertToLocalDate(Date date) {
-        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        if (date != null) {
+            return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } else {
+            return null;
+        }
     }
 
 }
