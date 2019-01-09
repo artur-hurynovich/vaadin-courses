@@ -71,7 +71,7 @@ public class StringListField extends CustomField<List<String>> {
                     setValue(recipients);
                 });
                 final Button removeButton = new Button("Remove");
-                removeButton.addClickListener(getRemoveButtonClickListener(recipient, childLayout));
+                removeButton.addClickListener(getRemoveButtonClickListener(textField, childLayout));
                 childLayout.addComponents(textField, removeButton);
                 childLayouts.add(childLayout);
             });
@@ -105,7 +105,7 @@ public class StringListField extends CustomField<List<String>> {
             final TextField textField = new TextField();
             textField.addValueChangeListener(getTextFieldValueChangeListener(textField, childLayout));
             final Button removeButton = new Button("Remove");
-            removeButton.addClickListener(getRemoveButtonClickListener(textField.getValue(), childLayout));
+            removeButton.addClickListener(getRemoveButtonClickListener(textField, childLayout));
             childLayout.addComponents(textField, removeButton);
             childLayouts.add(childLayout);
             recipients.add("");
@@ -116,11 +116,11 @@ public class StringListField extends CustomField<List<String>> {
         };
     }
 
-    private Button.ClickListener getRemoveButtonClickListener(final String recipient,
+    private Button.ClickListener getRemoveButtonClickListener(final TextField textField,
                                                               final HorizontalLayout childLayout) {
         return clickEvent -> {
             final List<String> recipients = new ArrayList<>(getValue());
-            recipients.remove(recipient);
+            recipients.remove(textField.getValue());
             setValue(recipients);
             getChildLayouts().remove(childLayout);
             parentLayout.removeComponent(childLayout);
